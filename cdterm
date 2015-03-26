@@ -16,4 +16,4 @@ fi
 # eval to get rid of hometilde by expanding it
 eval path=$path
 cd $path
-uxterm -tn xterm-256color
+exec uxterm -tn xterm-256color
