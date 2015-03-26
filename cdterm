@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Open a terminal related to the actual working directory
+
+# get focused window
+focusedid=$(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2)
+title=$(xprop -id $focusedid _NET_WM_NAME | awk 'BEGIN{FS="\""}{print $2}')
+
+# test for uxterm terminal name
+path=$(echo $title | sed -ne 's|^[^@]*@[^:]*\:\(.*\)$|\1|p')
+# test for vim terminal name
+if [ -z "$path" ]; then
+path=$(echo $title | sed -ne 's|^[^(]*\(([^)]*)\).*VIM$|\1|p')
+fi
+
+# eval to get rid of hometilde by expanding it
+eval path=$path
+cd $path
+uxterm -tn xterm-256color
