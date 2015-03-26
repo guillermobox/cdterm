@@ -10,10 +10,17 @@ title=$(xprop -id $focusedid _NET_WM_NAME | awk 'BEGIN{FS="\""}{print $2}')
 path=$(echo $title | sed -ne 's|^[^@]*@[^:]*\:\(.*\)$|\1|p')
 # test for vim terminal name
 if [ -z "$path" ]; then
-path=$(echo $title | sed -ne 's|^[^(]*\(([^)]*)\).*VIM$|\1|p')
+path=$(echo $title | sed -ne 's|^[^(]*(\([^)]*\)).*VIM$|\1|p')
+fi
+# test for clipboard
+if [ -z "$path" ]; then
+path=$(xclip -o | sed -ne 's|^\(/[[:alnum:]./]*\)|\1|p')
 fi
 
-# eval to get rid of hometilde by expanding it
-eval path=$path
-cd $path
+path=$(echo $path | sed -e "s|^~|$HOME|")
+
+if [ -d "$path" ]; then
+	cd "$path"
+fi
+
 exec uxterm -tn xterm-256color
