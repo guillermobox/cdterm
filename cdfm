@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# Open a file manager related to the actual working directory
+
+# get focused window
+focusedid=$(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2)
+title=$(xprop -id $focusedid _NET_WM_NAME | awk 'BEGIN{FS="\""}{print $2}')
+
+# test for uxterm terminal name
+path=$(echo $title | sed -ne 's|^[^@]*@[^:]*\:\(.*\)$|\1|p')
+# test for vim terminal name
+if [ -z "$path" ]; then
+path=$(echo $title | sed -ne 's|^[^(]*(\([^)]*\)).*VIM$|\1|p')
+fi
+# test for clipboard
+if [ -z "$path" ]; then
+path=$(xclip -o | sed -ne 's|^\(/[[:alnum:]./]*\)|\1|p')
+fi
+
+path=$(echo $path | sed -e "s|^~|$HOME|")
+
+if [ -d "$path" ]; then
+exec nautilus --no-desktop "$path"
+else
+exec nautilus
+fi
+
